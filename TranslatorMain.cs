@@ -64,12 +64,19 @@ namespace ModLocalizer
         {
             ScanTranslationPacks();
 
-            InjectFromRoot(locManager, language, Path.Combine(ModDirectory, "translations"));
+            // クラシック: translations/<mod名>/<lang>/<table>.json
+            string classicRoot = Path.Combine(ModDirectory, "translations");
+            if (Directory.Exists(classicRoot))
+            {
+                foreach (string modDir in Directory.GetDirectories(classicRoot))
+                    InjectFromRoot(locManager, language, modDir);
+            }
 
             foreach (string root in _packRoots)
                 InjectFromRoot(locManager, language, root);
         }
 
+        // 構造: <root>/<lang>/<table>.json
         private static void InjectFromRoot(LocManager locManager, string language, string translationsRoot)
         {
             string langRoot = Path.Combine(translationsRoot, language);
@@ -79,7 +86,6 @@ namespace ModLocalizer
                 return;
             }
 
-            // 構造: translations/<lang>/<table>.json
             foreach (string jsonPath in Directory.GetFiles(langRoot, "*.json", SearchOption.TopDirectoryOnly))
             {
                     string tableName = Path.GetFileNameWithoutExtension(jsonPath);
